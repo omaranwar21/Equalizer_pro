@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import streamlit as st
 import scipy.fft
+from scipy.signal import find_peaks
 
 
 #init function to dispaly needed grid
@@ -38,6 +39,7 @@ times = np.arange(len(data))/float(samplerate)
 # Frequency domain representation
 # amplitude = np.abs(scipy.fft.rfft(data))
 # frequency = scipy.fft.rfftfreq(len(data), (times[1]-times[0]))
+# indices = find_peaks(amplitude)
 
 
 add_to_plot(ax,times,data)
