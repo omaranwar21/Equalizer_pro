@@ -2,9 +2,12 @@
 from scipy.io import wavfile
 from matplotlib import pyplot as plt
 import numpy as np
+import pandas as pd
 import streamlit as st
-import scipy.fft
 from scipy.signal import find_peaks
+from scipy.fftpack import fft
+from scipy.io import wavfile
+
 
 
 #init function to dispaly needed grid
@@ -32,8 +35,25 @@ def show_plot(f):
 
 f,ax=init_plot()  
 # Load the data and calculate the time of each sample
-samplerate, data = wavfile.read(r'D:\DSP_Task2\Media\S2.wav')
-times = np.arange(len(data))/float(samplerate)
+samplerate, signal_time_series = wavfile.read(r'C:\Users\HP Probook\Documents\GitHub\DSP_Task2\Media\S1.wav')
+times = np.arange(len(signal_time_series))/float(samplerate)
+add_to_plot(ax,times,signal_time_series)
+show_plot(f)
+
+f,ax=init_plot()  
+single_sample_data = signal_time_series[:samplerate,0]
+y_freq = fft(single_sample_data)
+N = len(single_sample_data)    # Number of samples
+T = 1/single_sample_data # Period
+domain = len(y_freq) // 2
+x_freq = np.linspace(0, samplerate//2, N//2)
+
+add_to_plot(ax,x_freq,y_freq[:domain])
+show_plot(f)
+
+inverse=np.fft.ifft(y_freq)
+add_to_plot(ax,times[:inverse[-1]],inverse)
+show_plot(f)
 
 
 # Frequency domain representation
@@ -42,6 +62,17 @@ times = np.arange(len(data))/float(samplerate)
 # indices = find_peaks(amplitude)
 
 
-add_to_plot(ax,times,data)
 
-show_plot(f)
+#---------------------------------------------------------------------------------------------------------------
+
+#upload ECG files 
+# uploaded_file = st.file_uploader(label="Upload your Signal",
+#         type=['csv', 'xslx'])
+
+#read and prepare the uploded signal data to be plot--------------------------------
+# df = pd.read_csv(uploaded_file, nrows=1500)    # read the df from the csv file and store it in variable named df
+# time = df['time']                              # time will carry the values of the time 
+# signal=df['signal']                            # f_amplitude will carry the values of the amplitude of the signal
+
+
+
