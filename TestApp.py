@@ -7,33 +7,36 @@ import pandas as pd
 import sys
 from utils import *
 import matplotlib.pyplot as plt
-
+import soundfile as sf
 import librosa
+import threading
+import altair as alt
 
 
-file = st.file_uploader(label="Upload Sound File", key="uploaded_file",type=["wav"])
-if not file:
-    st.stop()
 
 
-f,ax=init_plot() 
+x, sr = getData()
+
+
+# st.download_button( label="Download reconstructed data", data=csv, file_name='large_df.csv', mime='text/csv')
+# f,ax=init_plot() 
 
 # file =
-x, sr =librosa.load(r"C:\\Users\\Anwar\\Desktop\\SBME 2024\YEAR 3 (2022-2023)\\DSP\\Tasks\\Task 2\\DSP_Task2\\Media\\S1.wav")
 
 t=np.array(range(0,len(x)))/(sr)
-f2,cx=init_plot()
-add_to_plot(cx, t, x)
-show_plot(f2)
+df = pd.DataFrame({'time' : t, 'signal' : list(x)}, columns = ['time', 'signal'])
+# f2,cx=init_plot()
+# add_to_plot(cx, t, x)
+# show_plot(f2)
 
 frequencies, fourier_signal = fourier(x, sr)
-add_to_plot(ax, frequencies[:len(fourier_signal)], fourier_signal)
-show_plot(f)
+# add_to_plot(ax, frequencies[:len(fourier_signal)], fourier_signal)
+# show_plot(f)
 
 t=np.array(range(0,len(fourier_signal )))/(sr)
-f1,bx=init_plot()
+# f1,bx=init_plot()
 inverse = play(fourier_signal)
-add_to_plot(bx, t, inverse)
+# add_to_plot(bx, t, inverse)
 
 
 
@@ -56,18 +59,40 @@ add_to_plot(bx, t, inverse)
 
 # y= np.fft.fft(x)
 # # y= np.fft.fft(signal)
-g,gx=init_plot() 
-signal_droped = drop(fourier_signal, frequencies, 0, 2000, 0)
 
-add_to_plot(gx, frequencies[:len(fourier_signal)], signal_droped)
-show_plot(g)
+
+# draw= [t,x]
+# g,gx=init_plot() 
+signal_droped = drop(fourier_signal, frequencies, 5000, 5500 , 0)
+
+# add_to_plot(gx, frequencies[:len(fourier_signal)], signal_droped)
+# show_plot(g)
 
 singnal_inversed = play(signal_droped)
 
-d,dx=init_plot() 
-add_to_plot(dx, t, singnal_inversed)
-show_plot(f1)
-show_plot(d)
+# d,dx=init_plot()
+
+# add_to_plot(dx, t, singnal_inversed)
+# show_plot(f1)
+# show_plot(d)
+
+base = alt.Chart(df).mark_rule().encode(
+    x='time',
+    y='signal',
+    
+    # row=alt.Row("a:N", title="Factor A", header=alt.base)
+).interactive()
+
+# base1 = alt.Chart(car).mark_rule().encode(
+#     x='date:T',
+#     y='temp_min:Q',
+#     y2='temp_max:Q',
+#     color='weather:N',
+#     # row=alt.Row("a:N", title="Factor A", header=alt.base)
+# ).interactive()
+
+
+
 # tpCount     = len(x)
 # # tpCount     = len(signal)
 
@@ -96,7 +121,7 @@ show_plot(d)
 
 
 
-
+st.altair_chart(base)
 
 write("openS1.wav", sr, singnal_inversed.astype(np.int16))
 

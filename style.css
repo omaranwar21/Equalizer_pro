@@ -1,0 +1,55 @@
+
+/*
+********** For Browse file **********
+(File Uploader)
+*/
+.css-6kekos{
+    display: none !important;
+}
+
+.css-po3vlj{
+    cursor: pointer !important;
+}
+
+/*
+********** For Whole container **********
+                (Body)
+*/
+.css-18e3th9{
+    padding: 1rem !important;
+}
+
+.css-1viydde{
+    gap : 0.76rem !important;
+}
+
+/*
+********** For navBar **********
+            (Built in)
+*/
+.css-18ni7ap{
+    display: none !important;
+}
+
+/*
+********** For Logo **********
+         (Image(SVG)
+*/
+.css-1offfwp{
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 63% !important;
+}
+
+/*
+********** For footer **********
+            (Built in)
+*/
+.css-qri22k{
+    display: none !important;
+}
+
+/* .jss1{
+    display: none !important;
+} */

@@ -16,6 +16,10 @@ sampling_rate,signal=wavfile.read("qwww-[AudioTrimmer.com].wav")
 y= rfft(signal)
 x= np.abs(rfftfreq(len(signal),1/sampling_rate))
 
+# x= rfftfreq(len(signal),2/sampling_rate)
+
+# y2=y[0:len(x)]
+
 condition=((x>25)&(x<4000))
 
 y[condition]=y[condition]*0
