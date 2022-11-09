@@ -9,8 +9,8 @@ import librosa
 import altair as alt
 import  streamlit_vertical_slider  as svs
 from itertools import repeat
+import plotly.tools as tls
 
-#init function to dispaly needed grid
 #init function for plotting------------------------------------------------
 def init_plot():
   f, ax = plt.subplots(1,1,figsize=(10,10))                      #subplots provides a way to plot multiple plots on a single figure giving a single figure fig with an array of axes ax.
@@ -23,21 +23,19 @@ def init_plot():
     ax.spines[spine].set_visible(False)
   return f,ax
 
+
 #function to pass the arrya of axes ax to the same figure-------------------
 def add_to_plot(ax,time,f_amplitude, color, label):
-  # 'shape' express the color or the shape , alpha represent the brightness of the line
-  ax.plot( time , f_amplitude, color, alpha=1, linewidth=2, label=label) 
+  ax.plot( time , f_amplitude, color, alpha=1, linewidth=2, label=label)  # 'shape' express the color or the shape , alpha represent the brightness of the line
 
 
-#fuction to shaw the plotting
 #show the figure with the required plots------------------------------------
-# def show_plot(f):
-#     f.set_figwidth(4)
-#     f.set_figheight()
-#     plotly_fig = tls.mpl_to_plotly(f)    #convert matplotlib figure to plotly_fig for more interactive
-#     plotly_fig.update_layout(font=dict(size=16), xaxis_title= "Time (second)", yaxis_title= 'Voltage (mV)', showlegend = True)     
-#     st.plotly_chart(plotly_fig, use_container_width=True, sharing="streamlit")  
-
+def show_plot(f):
+    f.set_figwidth(4)
+    f.set_figheight(8)
+    plotly_fig = tls.mpl_to_plotly(f)    #convert matplotlib figure to plotly_fig for more interactive
+    plotly_fig.update_layout(font=dict(size=16), xaxis_title= "Time (second)", yaxis_title= 'Voltage (mV)', showlegend = True)     
+    st.plotly_chart(plotly_fig, use_container_width=True, sharing="streamlit")
 
 def read_wav(file):
     spf = wave.open(file, "r")
