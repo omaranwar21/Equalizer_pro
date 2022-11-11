@@ -37,6 +37,12 @@ def show_plot(f):
     plotly_fig.update_layout(font=dict(size=16), xaxis_title= "Time (second)", yaxis_title= 'Voltage (mV)', showlegend = True)     
     st.plotly_chart(plotly_fig, use_container_width=True, sharing="streamlit")
 
+def sampled_signal(signal, time):
+    pack = 100
+    sampled_time= time[::pack]
+    sampled_signal= signal[::pack]
+    return sampled_signal, sampled_time  
+
 def read_wav(file):
     spf = wave.open(file, "r")
     return spf
@@ -124,3 +130,5 @@ def creatSliders (num):
                     # track_color = 'lightgray',
                     # thumb_color = 'red', 
                     )
+
+
