@@ -8,6 +8,7 @@ import math
 import time
 import IPython.display as ipd
 import streamlit.components.v1 as components
+from streamlit.components.v1 import html
 import matplotlib.pyplot as plt
 # import schedule
 
@@ -16,6 +17,27 @@ st.set_page_config(
     page_icon="🔉",
     layout="wide"
 )
+
+def init_plot():
+  f, ax = plt.subplots(1,1,figsize=(10,10))                       
+  ax.set_xlabel('Time')              # the x_axis title
+  ax.yaxis.set_tick_params(length=5)          # to draw the y-axis line (-) for points
+  ax.xaxis.set_tick_params(length=0)          # to draw the y-axis line (-) for points
+  ax.grid(c='#D3D3D3', lw=1, ls='--')         #lw represent the line width of the grid
+  legend = ax.legend()      
+  legend.get_frame().set_alpha(1)
+  for spine in ('top', 'right', 'bottom', 'left'):  #control the border lines to be visible or not and the width of them
+    ax.spines[spine].set_visible(False)  
+  return  f,ax
+
+#function to pass the x,y data
+# @st.cache (suppress_st_warning = True, persist = False, show_spinner = False, allow_output_mutation=True)
+def add_to_plot(ax,x,sr):
+  ax.specgram(x,Fs = sr)  # alpha represent the brightness of the line
+
+#fuction to shaw the plotting
+def show_plot(f):
+        st.pyplot(f)   
 
 def sampled_signal(signal, time):
     pack = 100
@@ -136,10 +158,16 @@ def start_Plotting (time, line_plot, step):
 if 'i' not in st.session_state:
     st.session_state.i = 0
 
+if 'audio' not in st.session_state:
+    st.session_state.audio = 0
 
-x, sr =librosa.load(r"C:\\Users\\Anwar\\Desktop\\SBME 2024\\YEAR 3 (2022-2023)\\DSP\\Tasks\\Task 2\\DSP_Task2\\Media\\S1 (mp3cut.net).wav")
+x, sr =librosa.load(r"C:\\Users\\Anwar\\Desktop\\SBME 2024\\YEAR 3 (2022-2023)\\DSP\\Tasks\\Task 2\\DSP_Task2\\Media\\S1(mp3cut.net).wav")
 t=np.array(range(0,len(x)))/(sr)
+
 x_, t_ = sampled_signal(x, t)
+f, ax = init_plot()
+
+add_to_plot(ax,x,sr)
 df = pd.DataFrame({'time' : t_, 'signal' : list(x_)}, columns = ['time', 'signal'])
 lines = plot_altair(df, st.session_state.i)
 line_plot = st.altair_chart(lines)
@@ -147,39 +175,54 @@ line_plot = st.altair_chart(lines)
 with st.container():
     col1,gap,col2 = st.columns([1,1,1])
     start_btn = col1.button('Start')
-    pause_btn = col2.button('Pause')
+    # pause_btn = col2.button('Pause')
 
-    if 'maxi' not in st.session_state:
-        st.session_state.maxi = math.ceil(t_[-1])
-
-
-    if start_btn:
-        # timer = 0.0001
-        # timer = start_Plotting(t_, line_plot, timer)
-        start_Plotting(t_, line_plot, 0.07)
-
-
-
-
-    value = math.ceil(st.session_state.i)
-    if value == st.session_state.maxi:
-        st.session_state.i = 0
-        start_Plotting(t_,line_plot, 0.07)
-
+    # if 'maxi' not in st.session_state:
+    #     st.session_state.maxi = math.ceil(t_[-1])
 
 
     view_spec = col1.button('view')
+
+    if start_btn:
+
+        st.session_state.i = 0
+        st.empty().write(ipd.Audio(x, rate=sr, autoplay = True,))
+        start_Plotting(t_, line_plot, 0.117)
+        st.empty().empty()
+        # timer = 0.0001
+        # timer = start_Plotting(t_, line_plot, timer)
+
+
+
+
+    # value = math.ceil(st.session_state.i)
+    # if value == st.session_state.maxi:
+    #     st.session_state.i = 0
+    #     start_Plotting(t_,line_plot, 0.07)
+
+    # view_flag = 0
+    if view_spec: 
+    #     if view_flag == 0:
+    #         view_flag = 1
+            show_plot(f)
+    #     else:
+    #         view_flag = 0
+    #         ax.clf()
+
     
-    if view_spec:
-        fig, ax = plt.figure(figsize=(9, 3))
+    
+        # fig, ax = plt.figure(figsize=(9, 3))
 
         # plt.xlabel('Time')
 
         # plt.ylabel('Frequency')
-        ax.specgram(x,Fs=sr)
-        st.pyplot(fig)
+        # ax.specgram(x,Fs=sr)
+        # st.pyplot(fig)
 
     # HtmlFile = open("index.html", 'r', encoding='utf-8')
+    # path_to_audio = "/Media/S1(mp3cut.net).wav"
+    # audio_type = "wav"
+
     # my_js = """
     # var x = document.getElementById("myAudio"); 
 
@@ -194,8 +237,8 @@ with st.container():
 
     # html_string = """
     #             <audio id="myAudio">
-    #   <source src="../Media/S1(mp3cut.net).wav" type="audio/wav">
-    #   <source src="../Media/S1(mp3cut.net).wav" type="audio/wav">
+    #   <source src="..{0}" type="audio/{1}">
+    #   <source src="..{0}" type="audio/{1}">
     #   Your browser does not support the audio element.
     # </audio>
 
@@ -203,14 +246,13 @@ with st.container():
 
     # <button onclick="playAudio()" type="button">Play Audio</button>
     # <button onclick="pauseAudio()" type="button">Pause Audio</button> 
-    # """
+    # """.format(path_to_audio, audio_type)
 
     # my_comp = f"<script>{my_js}</script>"
 
-    # sound = st.empty()            
-    # sound.markdown(html_string, unsafe_allow_html=True)
+    # # sound = st.empty()            
+    # # sound.markdown(html_string, unsafe_allow_html=True)
     # html(html_string)
     # html(my_comp)
 
     # st.audio("C:\\Users\\Anwar\\Desktop\\SBME 2024\\YEAR 3 (2022-2023)\\DSP\\Tasks\\Task 2\\DSP_Task2\\Media\\S1 (mp3cut.net).wav")
-    st.write(ipd.Audio(x, rate=sr, autoplay = True))
