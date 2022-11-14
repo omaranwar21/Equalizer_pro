@@ -99,7 +99,7 @@ def getFile():
     </style>
     """  
   st.markdown(browseButton_style, unsafe_allow_html=True)  
-  x, sr =librosa.load(r"C:\\Users\\Anwar\\Desktop\\SBME 2024\\YEAR 3 (2022-2023)\\DSP\\Tasks\\Task 2\\DSP_Task2\\Media\\S1 (mp3cut.net).wav")
+  x, sr =librosa.load(r"C:\\Users\\Anwar\\Desktop\\SBME 2024\\YEAR 3 (2022-2023)\\DSP\\Tasks\\Task 2\\DSP_Task2\\test a.wav")
   return x, sr
 
 

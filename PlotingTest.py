@@ -10,6 +10,13 @@ import IPython.display as ipd
 import streamlit.components.v1 as components
 from streamlit.components.v1 import html
 import matplotlib.pyplot as plt
+import pygame
+from pydub import AudioSegment
+from just_playback import Playback
+from replit import audio
+# import simpleaudio as sa
+# import aud
+
 # import schedule
 
 st.set_page_config(
@@ -151,7 +158,13 @@ def start_Plotting (time, line_plot, step):
         line_plot = line_plot.altair_chart(lines)
         # now = time.time()
         # timer = now - program_starts
-    # return timer    
+    # return timer   
+
+# def convert_to_mp3 (wav_file):
+#     sound = pydub.AudioSegment.from_wav(wav_file)
+#     mp3_file = os.path.splitext(wav_file)[0] + '.mp3'
+#     sound.export(mp3_file, format="mp3")
+#     return 
 
     
 
@@ -161,7 +174,39 @@ if 'i' not in st.session_state:
 if 'audio' not in st.session_state:
     st.session_state.audio = 0
 
-x, sr =librosa.load(r"C:\\Users\\Anwar\\Desktop\\SBME 2024\\YEAR 3 (2022-2023)\\DSP\\Tasks\\Task 2\\DSP_Task2\\Media\\S1(mp3cut.net).wav")
+
+x, sr =librosa.load(r"C:\\Users\\Anwar\\Desktop\\SBME 2024\\YEAR 3 (2022-2023)\\DSP\\Tasks\\Task 2\\DSP_Task2\\g_sentence.wav")
+# source = audio. play_file("g_sentence.wav")
+# playback = Playback() # creates an object for managing playback of a single audio file
+# playback.load_file("C:\\Users\\Anwar\\Desktop\\SBME 2024\\YEAR 3 (2022-2023)\\DSP\\Tasks\\Task 2\\DSP_Task2\\g_sentence.mp3")
+# sound = pydub.AudioSegment.from_wav("C:\\Users\\Anwar\\Desktop\\SBME 2024\\YEAR 3 (2022-2023)\\DSP\\Tasks\\Task 2\\DSP_Task2\\Media\\S1(mp3cut.net).wav")
+
+# sound.export("C:\\Users\\Anwar\\Desktop\\SBME 2024\\YEAR 3 (2022-2023)\\DSP\\Tasks\\Task 2\\DSP_Task2\\Media\\S1(mp3cut.net).mp3", format="mp3")
+# x, sr =librosa.load(r"C:\\Users\\Anwar\\Desktop\\SBME 2024\\YEAR 3 (2022-2023)\\DSP\\Tasks\\Task 2\\DSP_Task2\\g_sentence.wav")
+
+
+# root = r'g_sentence.wav'
+
+# x, sr = librosa.load(root)
+
+# x_fast = librosa.effects.time_stretch(x, rate=1.5)
+# Audio(x_fast, rate = sr)
+
+pygame.mixer.init()
+
+# sound = AudioSegment.from_file(root)
+
+# so = sound.speedup(1.5, 300, 25)
+
+# so.export(root[:-4] + '_down.wav', format = 'wav')
+
+pygame.mixer.music.load("C:\\Users\\Anwar\\Desktop\\SBME 2024\\YEAR 3 (2022-2023)\\DSP\\Tasks\\Task 2\\DSP_Task2\\g_sentence.wav")
+# wave_obj = sa.WaveObject.from_wave_file("g_sentence.wav")
+
+
+# x, sr = librosa.load(root)
+
+
 t=np.array(range(0,len(x)))/(sr)
 
 x_, t_ = sampled_signal(x, t)
@@ -169,31 +214,57 @@ f, ax = init_plot()
 
 add_to_plot(ax,x,sr)
 df = pd.DataFrame({'time' : t_, 'signal' : list(x_)}, columns = ['time', 'signal'])
+
 lines = plot_altair(df, st.session_state.i)
 line_plot = st.altair_chart(lines)
 
 with st.container():
-    col1,gap,col2 = st.columns([1,1,1])
+    col1,gap,col2,gap, col3 = st.columns([1,1,1,1,1])
     start_btn = col1.button('Start')
-    # pause_btn = col2.button('Pause')
+    pause_btn = col2.button('Pause')
+    resume_btn = col3.button('resume')
 
     # if 'maxi' not in st.session_state:
     #     st.session_state.maxi = math.ceil(t_[-1])
 
 
-    view_spec = col1.button('view')
+    # view_spec = col1.button('view')
 
     if start_btn:
 
+        # if st.session_state.i == 0:
         st.session_state.i = 0
-        st.empty().write(ipd.Audio(x, rate=sr, autoplay = True,))
+        # audio. play_file("g_sentence.wav")
+        # play_obj = wave_obj.play()
+        pygame.mixer.music.play()        
+        # st.write(ipd.Audio(x,rate=sr,autoplay=True))
+        # pygame.mixer.music.play()
+        # pygame.mixer.music.set_pos(st.session_state.i/1000.0)
+        # playback.play()
+        # else:
+        # st.session_state.i = 0
+        # st.empty().write(ipd.Audio(x, rate=sr, autoplay = True))
         start_Plotting(t_, line_plot, 0.117)
-        st.empty().empty()
+        # st.empty().empty()
         # timer = 0.0001
         # timer = start_Plotting(t_, line_plot, timer)
 
+    if pause_btn:
+        # source.set_paused(True)
+        pygame.mixer.music.pause()
+        # play_obj.pause()
+        # start_Plotting(t_, line_plot, 0.117)
+        # playback.pause()
 
-
+    if resume_btn:
+        # source.set_paused(True)
+        # st.write(st.session_state.i)
+        # pygame.mixer.music.play()
+        # playback.seek(st.session_state.i)
+        # pygame.mixer.music.set_pos(st.session_state.i/1000.0)
+        pygame.mixer.music.unpause()
+        # play_obj.resume()
+        start_Plotting(t_, line_plot, 0.117)
 
     # value = math.ceil(st.session_state.i)
     # if value == st.session_state.maxi:
@@ -201,7 +272,8 @@ with st.container():
     #     start_Plotting(t_,line_plot, 0.07)
 
     # view_flag = 0
-    if view_spec: 
+    # if view_spec:
+    with st.expander("Spectogram"): 
     #     if view_flag == 0:
     #         view_flag = 1
             show_plot(f)
