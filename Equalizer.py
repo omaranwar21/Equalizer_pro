@@ -288,15 +288,10 @@ with col2:
 
 uniform_tab, vowels_tab, Instruments_tab, Voice_Changer_tab = st.tabs(["Uniform", "Vowels", "Instruments","Voice Changer"])
 
-<<<<<<< Updated upstream
 with uniform_tab:
-
-=======
-with tab1:
    
     first_dictionary_list=[]
     normal_list=[]
->>>>>>> Stashed changes
     first_columns=st.columns(10)
     first_counter=0
     while first_counter < 10:
@@ -307,13 +302,9 @@ with tab1:
         normal_list.remove()
         first_counter +=1    
 
-<<<<<<< Updated upstream
 with vowels_tab:
-=======
-with tab2:
     second_dictionary_list =[]
     vowels_list=[]
->>>>>>> Stashed changes
     second_columns=st.columns(4)
     second_counter=0
     while second_counter < 4:
@@ -325,13 +316,9 @@ with tab2:
         vowels_list.remove()     
         second_counter +=1
 
-<<<<<<< Updated upstream
 with Instruments_tab:
-=======
-with tab3:
     third_dictionary_list=[]
     instrument_list=[]
->>>>>>> Stashed changes
     third_columns=st.columns(3)
     third_counter=0
     while third_counter < 3:
