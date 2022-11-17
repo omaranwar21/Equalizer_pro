@@ -156,12 +156,11 @@ y, sr =librosa.load(file)
 st.slider('10k', min_value = -5, max_value=5, value=0, step=1, format='%ddb', key= 'slider_value')
 # st.writ
 
-def fourier_transform(signal,sr):
-    y_sig= scipy.fft.rfft(signal)
-    mag=np.abs(y_sig)
-    phase=np.angle(y_sig)
-    freq= rfftfreq(len(signal),1/sr)
-    return mag,phase,freq
+
+y_sig= scipy.fft.rfft(x)
+mag=np.abs(y_sig)
+phase=np.angle(y_sig)
+freq= rfftfreq(len(x),1/sr)
 
 ranges1=[[0,5000]]
 

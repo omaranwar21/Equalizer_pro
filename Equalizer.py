@@ -19,6 +19,7 @@ from replit import audio
 import os
 from scipy.fft import rfft,irfft, rfftfreq
 import scipy.signal
+import streamlit_nested_layout
 
 
 # ---------------------------------------------------------------------------
@@ -44,27 +45,27 @@ def vertical_slider(value, step, min=min, max=max, key=None):
 # ----------------------------------------------------------------------------
 
 def init_plot():
-  f, ax = plt.subplots(1,1,figsize=(10,10))                       
-  ax.set_xlabel('Time')                       # the x_axis title
-  ax.yaxis.set_tick_params(length=5)          # to draw the y-axis line (-) for points
-  ax.xaxis.set_tick_params(length=0)          # to draw the y-axis line (-) for points
-  ax.grid(c='#D3D3D3', lw=1, ls='--')         #lw represent the line width of the grid
-  legend = ax.legend()      
-  legend.get_frame().set_alpha(1)
-  for spine in ('top', 'right', 'bottom', 'left'):  #control the border lines to be visible or not and the width of them
-    ax.spines[spine].set_visible(False)  
-  return  f,ax
+    f, ax = plt.subplots(1,1,figsize=(10,10))                       
+    ax.set_xlabel('Time')                       # the x_axis title
+    ax.yaxis.set_tick_params(length=5)          # to draw the y-axis line (-) for points
+    ax.xaxis.set_tick_params(length=0)          # to draw the y-axis line (-) for points
+    ax.grid(c='#D3D3D3', lw=1, ls='--')         #lw represent the line width of the grid
+    legend = ax.legend()      
+    legend.get_frame().set_alpha(1)
+    for spine in ('top', 'right', 'bottom', 'left'):  #control the border lines to be visible or not and the width of them
+        ax.spines[spine].set_visible(False)  
+    return  f,ax
 
 
 #function to pass the x,y data------------------------------------------------
 def add_to_plot(ax,x,sr):
-  ax.specgram(x,Fs = sr)  # alpha represent the brightness of the line
+    ax.specgram(x,Fs = sr)  # alpha represent the brightness of the line
 
 
 
 #fuction to shaw the plotting--------------------------------------------------
 def show_plot(f):
-        st.pyplot(f)   
+    st.pyplot(f)   
 
 
 # -----------------------------------------------------------------------------
@@ -77,6 +78,7 @@ def sampled_signal(signal, time):
 
 # -----------------------------------------------------------------------------
 def plot_altair(firstDataFrame, secondDataframe, cutoff):
+    plot_width = 1000
 
     end = firstDataFrame["time"].iloc[-1] + 0.05
 
@@ -104,7 +106,7 @@ def plot_altair(firstDataFrame, secondDataframe, cutoff):
             color = alt.condition(alt.datum["time"] < selector["cutoff"],
                     alt.value("#ffffff"), alt.value("#595959"))
         ).properties(
-            width=1300,
+            width=plot_width,
             height=200
         ).add_selection(
             selector,
@@ -119,7 +121,7 @@ def plot_altair(firstDataFrame, secondDataframe, cutoff):
             color = alt.condition(alt.datum["time"] < selector["cutoff"],
                     alt.value("#ffffff"), alt.value("#595959"), legend=alt.Legend(title=" "))
         ).properties(
-            width=1300,
+            width=plot_width,
             height=200
         ).add_selection(
             selector,
@@ -147,9 +149,9 @@ def plot_altair(firstDataFrame, secondDataframe, cutoff):
     return figure
 
 # ---------------------------------------------------------------------------------------------------
-def start_Plotting (time, line_plot, step,df, df1):
-    for st.session_state.i in np.arange(st.session_state.i, math.ceil(time[-1]), step): # asyncronous timing
-        lines = plot_altair(df, df1, st.session_state.i)
+def start_Plotting (time, line_plot, step, Audio_dataFrame, edited_Audio_dataFrame):
+    for st.session_state.i in np.arange(st.session_state.i, math.ceil(time[-1]), step):
+        lines = plot_altair(Audio_dataFrame, edited_Audio_dataFrame, st.session_state.i)
         line_plot = line_plot.altair_chart(lines)
 
 def fourier_transform(signal,sr):
@@ -160,17 +162,17 @@ def fourier_transform(signal,sr):
     return mag,phase,freq 
 
 def invers (new_mag,phase):
-    y2=np.multiply(new_mag,np.exp(1j*phase))
-    inv_fourier_signal = np.real(scipy.fft.irfft(y2))
+    signal=np.multiply(new_mag,np.exp(1j*phase))
+    inv_fourier_signal = np.real(scipy.fft.irfft(signal))
     return inv_fourier_signal
 
 # convert the signals after sampling to data frame
-def plot_init(t_, x_, y_):
-    df = pd.DataFrame({'time' : t_, 'signal' : list(x_)}, columns = ['time', 'signal'])
-    df1 = pd.DataFrame({'time' : t_, 'signal' : list(y_)}, columns = ['time', 'signal'])
-    lines = plot_altair(df, df1, st.session_state.i)
+def plot_init(t_sampled, first_signal_sampled, second_signal_sampled):
+    Audio_dataFrame = pd.DataFrame({'time' : t_sampled, 'signal' : list(first_signal_sampled)}, columns = ['time', 'signal'])
+    edited_Audio_dataFrame = pd.DataFrame({'time' : t_sampled, 'signal' : list(second_signal_sampled)}, columns = ['time', 'signal'])
+    lines = plot_altair(Audio_dataFrame, edited_Audio_dataFrame, st.session_state.i)
     line_plot = st.altair_chart(lines)
-    return line_plot, df, df1
+    return line_plot, Audio_dataFrame, edited_Audio_dataFrame
 
 
 if 'i' not in st.session_state:
@@ -178,6 +180,15 @@ if 'i' not in st.session_state:
 
 if 'audio' not in st.session_state:
     st.session_state.audio = 0
+
+if 't_sampled' not in st.session_state:
+    st.session_state.t_sampled = np.zeros(10)
+
+if 'signal_sampled' not in st.session_state:
+    st.session_state.signal_sampled = np.zeros(10)
+
+if 'audio_dataFrame' not in st.session_state:
+    st.session_state.audio_dataFrame = pd.DataFrame({'time' : st.session_state.t_sampled, 'signal' : list(st.session_state.signal_sampled)}, columns = ['time', 'signal'])
 
 # ploting section----------------------------------------------------------------------------------------------
 
@@ -190,6 +201,9 @@ with col1:
     render_svg("assests\logo.svg")
     st.header("Equalizer")
     file = st.file_uploader(label="Upload File", key="uploaded_file",type=["wav"])
+    Ncol1, Ncol2 = st.columns([1, 1])
+    start_btn = Ncol1.button('Start')
+    pause_btn = Ncol2.button('Pause')
     browseButton_style = f"""
     <style>
         .css-1plt86z .css-186ux35{{
@@ -200,7 +214,7 @@ with col1:
         cursor: pointer !important;
         user-select: none;
     }}
-
+    
     .css-u8hs99{{
         flex-direction: column !important;
         text-align: center;
@@ -223,59 +237,58 @@ with col1:
 
 
 with col2:
+    if file is None:
+        lines = plot_altair(st.session_state.audio_dataFrame, st.session_state.audio_dataFrame, st.session_state.i)
+        line_plot = st.altair_chart(lines)
 
-    if file is not None:
+    elif file is not None:
 
-        signal, sr =librosa.load(file)
-        t=np.array(range(0,len(signal)))/(sr)
+        signal, sample_rate =librosa.load(file)
+        t=np.array(range(0,len(signal)))/(sample_rate)
 
-        fourier_transform(signal,sr)
+        fourier_transform(signal,sample_rate)
 
         pygame.mixer.init()
         pygame.mixer.music.load(file.name)
         
-        x_, t_ = sampled_signal(signal, t)
+        st.session_state.signal_sampled, st.session_state.t_sampled = sampled_signal(signal, t)
         f, ax = init_plot()
-        add_to_plot(ax,signal,sr)
-        df = pd.DataFrame({'time' : t_, 'signal' : list(x_)}, columns = ['time', 'signal'])
+        add_to_plot(ax,signal,sample_rate)
+        st.session_state.audio_dataFrame= pd.DataFrame({'time' : st.session_state.t_sampled, 'signal' : list(st.session_state.signal_sampled)}, columns = ['time', 'signal'])
 
-        lines = plot_altair(df, st.session_state.i)
+        lines = plot_altair(st.session_state.audio_dataFrame, st.session_state.audio_dataFrame, st.session_state.i)
         line_plot = st.altair_chart(lines)
 
 
         start_btn = st.button("Start" )
         pause_btn = st.button("Pause")
-        resume_btn = st.button("resume")    
+        # resume_btn = st.button("resume")    
         
+        state_flag = 0
         if start_btn:
-
             st.session_state.i = 0
-            
-            
-            start_Plotting(t_, line_plot, 0.117)
+            start_Plotting(st.session_state.t_sampled, line_plot, 0.117)
         
 
         if pause_btn:
-            pygame.mixer.music.pause()
-        
-        if resume_btn:
-        
-            pygame.mixer.music.unpause()
-            start_Plotting(t_, line_plot, 0.117)
+            if state_flag == 0:
+                pygame.mixer.music.pause()
+                state_flag = 1
+            else:
+                pygame.mixer.music.unpause()
+                state_flag = 0
+                start_Plotting(st.session_state.t_sampled, line_plot, 0.117)
+            
 
-        with st.expander("Spectogram"): 
+        with st.expander("Spectogram"):
+            show_plot(f)
 
-                show_plot(f)
-
-with st.container():
-    col1, gap, col2,gap = st.columns([0.07,0.03,0.07,1])
-    start_btn = col1.button('Start')
-    pause_btn = col2.button('Pause')
+# with st.container():
 
 
-tab1, tab2, tab3, tab4 = st.tabs(["Uniform", "Vowels", "Instruments","Voice_Changer"])
+uniform_tab, vowels_tab, Instruments_tab, Voice_Changer_tab = st.tabs(["Uniform", "Vowels", "Instruments","Voice Changer"])
 
-with tab1:
+with uniform_tab:
 
     first_columns=st.columns(10)
     first_counter=0
@@ -287,7 +300,7 @@ with tab1:
         first_list_of_sliders_values.append(first_slider) 
     
 
-with tab2:
+with vowels_tab:
     second_columns=st.columns(4)
     second_counter=0
     second_list_of_sliders_values = []
@@ -299,7 +312,7 @@ with tab2:
         second_list_of_sliders_values.append(second_slider)
 
 
-with tab3:
+with Instruments_tab:
     third_columns=st.columns(3)
     third_counter=0
     third_list_of_sliders_values = []
@@ -311,6 +324,6 @@ with tab3:
         third_list_of_sliders_values.append(third_slider)
 
 
-with tab4:
+with Voice_Changer_tab:
     change_to_male_voice = st.checkbox('Male Voice')
     change_to_female_voice = st.checkbox('Female Voice')

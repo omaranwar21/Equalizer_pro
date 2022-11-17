@@ -165,7 +165,7 @@ display: none !important;
 }
 
 .st-bl {
-    gap: 2rem !important;
+    gap: 10rem !important;
     background-color: #072a51 !important;
 }
 
@@ -216,6 +216,21 @@ display: none !important;
     background-color: #112549 !important;
 }
 
-.st-be button{
-    background-color: none;
+.st-bd button{
+    background-color: transparent !important;
+}
+
+.css-3fi9kc.vega-embed.has-actions{
+    display: flex !important;
+    justify-content: center !important;
+}
+
+.vega-embed .chart-wrapper {
+    /* width: 100%;
+    height: 100%; */
+    display: contents !important;
+}
+
+.css-kdqr5v{
+    gap: 0.5rem !important; 
 }
