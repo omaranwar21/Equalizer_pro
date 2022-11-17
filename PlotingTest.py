@@ -16,7 +16,6 @@ import pygame
 from pydub import AudioSegment
 from just_playback import Playback
 from replit import audio
-import mutagen.mp3
 import scipy.signal
 from os import path
 from pydub import AudioSegment
@@ -157,12 +156,12 @@ y, sr =librosa.load(file)
 st.slider('10k', min_value = -5, max_value=5, value=0, step=1, format='%ddb', key= 'slider_value')
 # st.writ
 
-y_sig= scipy.fft.rfft(y)
-mag=np.abs(y_sig)
-
-phase=np.angle(y_sig)
-
-freq= rfftfreq(len(y),1/sr)
+def fourier_transform(signal,sr):
+    y_sig= scipy.fft.rfft(signal)
+    mag=np.abs(y_sig)
+    phase=np.angle(y_sig)
+    freq= rfftfreq(len(signal),1/sr)
+    return mag,phase,freq
 
 ranges1=[[0,5000]]
 
@@ -171,6 +170,7 @@ new_mag=mag.copy()
 def drop(slider_ranges,factor_slider, freq, new_mag):
     for range in slider_ranges:
         index=np.where((freq>range[0])&(freq<range[1]))
+        
         
         # triangle_window=10**(factor_slider*scipy.signal.windows.triang(len(index)))
         triangle_window=10**(factor_slider*np.hanning(len(index)))

@@ -17,6 +17,8 @@ from pydub import AudioSegment
 from just_playback import Playback
 from replit import audio
 import os
+from scipy.fft import rfft,irfft, rfftfreq
+import scipy.signal
 
 
 # ---------------------------------------------------------------------------
@@ -74,7 +76,10 @@ def sampled_signal(signal, time):
 
 
 # -----------------------------------------------------------------------------
-def plot_altair(df, cutoff):
+def plot_altair(firstDataFrame, secondDataframe, cutoff):
+
+    end = firstDataFrame["time"].iloc[-1] + 0.05
+
     zoom = alt.selection_interval(
     bind='scales',
     on="[mousedown[!event.shiftKey], mouseup] > mousemove",
@@ -91,31 +96,14 @@ def plot_altair(df, cutoff):
         fields=["cutoff"],
         init={"cutoff": cutoff},
     )
-    end = math.ceil(df["time"].iloc[-1])
-    base = alt.Chart(df).mark_rule().encode(
-            x=alt.X('time', axis=alt.Axis(title='Time'), scale=alt.Scale(domain=(0, end))),
+
+    ############################  First Graph  ############################
+    firstGraph = alt.Chart(firstDataFrame).mark_rule().encode(
+            x=alt.X('time', axis=alt.Axis(title=None, labelColor='white', titleColor='white', domainColor='#132346'), scale=alt.Scale(domain=(0, end))),
             y=alt.Y('signal', axis=None),
             color = alt.condition(alt.datum["time"] < selector["cutoff"],
-        alt.value("#1F618D"),
-        alt.value("#BBDEFB")),
-        
-    ).properties(
-            width=1300,
-            height=200
-    ).add_selection(
-            selector,
-            zoom,
-            selection
-    )
- 
-    base1 = alt.Chart(df).mark_rule().encode(
-            x=alt.X('time', axis=alt.Axis(title='Time'), scale=alt.Scale(domain=(0, end))),
-            y=alt.Y('signal', axis=None),
-            color = alt.condition(alt.datum["time"] < selector["cutoff"],
-        alt.value("#1F618D"),
-        alt.value("#BBDEFB")),
-        
-    ).properties(
+                    alt.value("#ffffff"), alt.value("#595959"))
+        ).properties(
             width=1300,
             height=200
         ).add_selection(
@@ -123,23 +111,67 @@ def plot_altair(df, cutoff):
             zoom,
             selection
         )
-    chart1=base.encode()
-    chart2=base1.encode()
-    figure = alt.vconcat(chart1, chart2).configure_axis(
-        gridColor = '#D6EAF8',
+
+    ############################  second Graph  ############################
+    secondGraph = alt.Chart(secondDataframe).mark_rule().encode(
+            x=alt.X('time', axis=alt.Axis(title='Time', labelColor='white', titleColor='white', domainColor='#132346'), scale=alt.Scale(domain=(0, end))),
+            y=alt.Y('signal', axis=None),
+            color = alt.condition(alt.datum["time"] < selector["cutoff"],
+                    alt.value("#ffffff"), alt.value("#595959"), legend=alt.Legend(title=" "))
+        ).properties(
+            width=1300,
+            height=200
+        ).add_selection(
+            selector,
+            zoom,
+            selection
+        )
+
+    ############################  Figure Displaying  ############################
+    firstChart= firstGraph.encode()
+    secondChart= secondGraph.encode()
+
+    figure = alt.vconcat(firstChart, secondChart).configure_axisX(
+        gridColor = '#00e0ff',
         domainColor = 'white',
+        titleColor = '#ffffff'
+    ).configure(
+        background = '#132346',
+        padding = {"left": 0, "top": 0, "right": 0, "bottom": 0}
+    ).configure_view(
+        strokeWidth = 5,
+        fill ='#074a7e',
+        stroke='#132346'
     )
+
     return figure
 
-
 # ---------------------------------------------------------------------------------------------------
-def start_Plotting (time, line_plot, step):
-    pygame.mixer.init()
-    pygame.mixer.music.play(start= st.session_state.i)     
+def start_Plotting (time, line_plot, step,df, df1):
     for st.session_state.i in np.arange(st.session_state.i, math.ceil(time[-1]), step): # asyncronous timing
-        lines = plot_altair(df, st.session_state.i)
+        lines = plot_altair(df, df1, st.session_state.i)
         line_plot = line_plot.altair_chart(lines)
-     
+
+def fourier_transform(signal,sr):
+    y_sig= scipy.fft.rfft(signal)
+    mag=np.abs(y_sig)
+    phase=np.angle(y_sig)
+    freq= rfftfreq(len(signal),1/sr)
+    return mag,phase,freq 
+
+def invers (new_mag,phase):
+    y2=np.multiply(new_mag,np.exp(1j*phase))
+    inv_fourier_signal = np.real(scipy.fft.irfft(y2))
+    return inv_fourier_signal
+
+# convert the signals after sampling to data frame
+def plot_init(t_, x_, y_):
+    df = pd.DataFrame({'time' : t_, 'signal' : list(x_)}, columns = ['time', 'signal'])
+    df1 = pd.DataFrame({'time' : t_, 'signal' : list(y_)}, columns = ['time', 'signal'])
+    lines = plot_altair(df, df1, st.session_state.i)
+    line_plot = st.altair_chart(lines)
+    return line_plot, df, df1
+
 
 if 'i' not in st.session_state:
     st.session_state.i = 0
@@ -194,15 +226,17 @@ with col2:
 
     if file is not None:
 
-        x, sr =librosa.load(file)
-        t=np.array(range(0,len(x)))/(sr)
+        signal, sr =librosa.load(file)
+        t=np.array(range(0,len(signal)))/(sr)
+
+        fourier_transform(signal,sr)
 
         pygame.mixer.init()
         pygame.mixer.music.load(file.name)
         
-        x_, t_ = sampled_signal(x, t)
+        x_, t_ = sampled_signal(signal, t)
         f, ax = init_plot()
-        add_to_plot(ax,x,sr)
+        add_to_plot(ax,signal,sr)
         df = pd.DataFrame({'time' : t_, 'signal' : list(x_)}, columns = ['time', 'signal'])
 
         lines = plot_altair(df, st.session_state.i)
