@@ -72,9 +72,7 @@ def drop (signal, frequencies, low, high, ratio):
 
 @st.cache (ttl = 1, suppress_st_warning = True, persist = False, show_spinner = False)
 def getFile():
-  # file = st.file_uploader(label="Upload File", key="uploaded_file",type=["wav"])
-  # if 'uploaded_file' not in st.session_state:
-  #     file = "C:\Users\Anwar\Desktop\SBME 2024\YEAR 3 (2022-2023)\DSP\Tasks\Task 2 v2\DSP_Task2\Media\S1.wav"
+  file = st.file_uploader(label="Upload File", key="uploaded_file",type=["wav"])
   browseButton_style = f"""    
       <style>
         .css-1plt86z .css-186ux35{{
@@ -96,10 +94,62 @@ def getFile():
     .css-1m59kx1{{
         margin-right: 0rem !important;
     }}
+
+    .css-po3vlj {{
+        display: flex;
+        -webkit-box-align: center;
+        align-items: center;
+        padding: 1rem;
+        width: 20%;
+        margin: auto;
+        /* height: 39%; */
+        background-color: rgb(41 98 255);
+        border-rad: ;
+        border-radius: 0.25rem;
+        (49, 51, 63): ;
+    }}
+
+    .css-u8hs99 {{
+        flex-direction: column !important;
+        text-align: center;
+        color: aliceblue;
+        font-size: 25px;
+        font-family: sans-serif;
+        margin-right: AUTO;
+        margin-left: auto;
+   }}
+   .css-noeb3a {{
+        display: block;
+        position: inherit;
+        overflow: hidden;
+        color: aliceblue;
+        width: 4.3rem;
+        height: auto;
+        margin: inherit;
+    }}
+    .css-1aehpvj {{
+        color: rgb(248 249 251);
+        font-size: 14px;
+        line-height: 1.25;
+    }}
+
+    .css-81oif8 {{
+        font-size: 14px;
+        color: rgb(248 249 251);
+        display: flex;
+        visibility: visible;
+        margin-bottom: 0.5rem;
+        height: auto;
+        min-height: 1.5rem;
+        vertical-align: middle;
+        flex-direction: row;
+        -webkit-box-align: center;
+        align-items: center;
+    }}
     </style>
     """  
   st.markdown(browseButton_style, unsafe_allow_html=True)  
-  x, sr =librosa.load(r"C:\\Users\\Anwar\\Desktop\\SBME 2024\\YEAR 3 (2022-2023)\\DSP\\Tasks\\Task 2\\DSP_Task2\\test a.wav")
+  x, sr =librosa.load(file)
   return x, sr
 
 

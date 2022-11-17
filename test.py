@@ -1,3 +1,5 @@
+
+
 # plot in real time with x-axis
 # import numpy as np
 # import matplotlib.pyplot as plt
@@ -56,4 +58,22 @@
 # fig.show()
 
 #---------------------------------------------------------------------------------------
+
+# import os
+# from os import path
+# from pydub import AudioSegment
+# import ffmpeg
+# import streamlit.components.v1 as components
+import streamlit as st
+
+# files                                                                         
+# src = "half.wav"
+# dst = "test.mp3"
+
+# # convert wav to mp3                                                            
+# sound = AudioSegment.from_wav(src)
+# sound.export(dst, format="mp3")
+
+
+
 

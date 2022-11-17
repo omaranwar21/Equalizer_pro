@@ -1,20 +1,4 @@
 
-/*
-********** For Browse file **********
-(File Uploader)
-*/
-.css-6kekos{
-    display: none !important;
-}
-
-.css-po3vlj{
-    cursor: pointer !important;
-}
-
-/*
-********** For Whole container **********
-                (Body)
-*/
 .css-18e3th9{
     padding: 1rem !important;
 }
@@ -53,3 +37,185 @@
 /* .jss1{
     display: none !important;
 } */
+
+/* -------intro section style-------- */
+
+img, svg {
+    padding-left: 20%;
+    width: 74%;
+}
+
+.css-1offfwp {
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 70% !important;
+}
+
+.css-10trblm {
+    position: relative!important; 
+    text-align: -webkit-center !important;;
+    font-size: 130% !important;;
+    font-family: sans-serif !important;;
+    color: white !important;;
+}
+
+
+/* browsing button option */
+
+.css-1plt86z .css-186ux35{
+    display: none !important;
+}
+
+
+.css-1plt86z{
+    cursor: pointer !important;
+    user-select: none;
+}
+
+.css-u8hs99{
+    flex-direction: column !important;
+    text-align: center !important;;
+    margin-right: AUTO !important;;
+    margin-left: auto !important;;
+}
+
+.css-1m59kx1{
+    margin-right: 0rem !important;
+}
+
+.css-po3vlj {
+    width: 70% !important;
+    margin: auto !important;
+    background-color: rgb(0 60 116) !important;
+
+}
+
+.css-po3vlj button {
+display: none !important;
+}
+
+.css-u8hs99 {
+    flex-direction: column !important;
+    text-align: center!important;
+    color: aliceblue!important;
+    font-size: 15px!important;
+    font-family: sans-serif !important;
+    margin-right: AUTO !important;
+    margin-left: auto!important;
+}
+.css-noeb3a {
+    display: block !important;
+    position: inherit !important;
+    overflow: hidden !important;
+    color: aliceblue !important;
+    width: 3.3rem !important;
+    height: auto!important;
+    margin: inherit !important;
+}
+.css-1aehpvj {
+    color: rgb(248 249 251) !important;
+    font-size: 14px  !important;
+    line-height: 1.25  !important;
+}
+
+.css-81oif8 {
+    color: rgb(8 41 81) !important;
+}
+
+.css-18e3th9 {
+    background-image: linear-gradient(180deg,#003d75 0,#232b56 100%) !important ;
+}
+
+
+.css-v561tt {
+    width: 369px !important;
+    display: flex;
+    flex-direction: column !important;
+    gap: 2rem;
+    border-radius: 23px !important;
+    background-color: rgba(0,0,0,.25) !important;
+    padding-bottom: 45px !important; 
+}
+
+.css-1uixxvy {
+    color: aliceblue !important;
+    font-size: 18px !important;
+}
+
+.css-fblp2m {
+    color: aliceblue !important;
+}
+
+
+.css-ml2xh6 {
+    background-color: #072a51 !important; 
+    border-radius: 23px !important;
+}
+
+.css-dczs0m {
+    background-color: #072a51 !important;
+    border-radius: 5% !important;
+    padding-bottom: 56px !important;
+}
+
+
+.css-6kekos {
+    z-index: 1000 !important;
+}
+
+.st-bl {
+    gap: 2rem !important;
+    background-color: #072a51 !important;
+}
+
+
+.st-cn {
+    background: none !important;
+    color: rgb(151 166 195) !important;
+    font-size: 31px !important;
+    padding: 20px !important;
+    margin-left: 110px !important;
+}
+
+
+.st-ce:hover {
+    color: rgb(248 249 251) !important;
+}
+
+
+.st-c6 {
+    background: none !important;
+    font-size: 31px !important;
+    padding: 20px !important;
+    margin-left: 143px !important;
+}
+
+.st-c5 {
+    color: rgb(255 255 255 / 95%) !important;
+}
+
+
+.st-ct {
+    height: 0.2rem !important;
+}
+
+
+.st-bk {
+    background-color: #072a51 !important;
+}
+
+
+.st-cp {
+    background-color: aliceblue !important;
+}
+
+
+.st-cy {
+    padding-top: 0px;
+    background-color: #112549 !important;
+}
+
+.st-be button{
+    background-color: none;
+}
