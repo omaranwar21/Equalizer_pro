@@ -19,6 +19,7 @@ from replit import audio
 import os
 from scipy.fft import rfft,irfft, rfftfreq
 import scipy.signal
+import streamlit_nested_layout
 
 
 # ---------------------------------------------------------------------------
@@ -38,7 +39,7 @@ build_dir = os.path.join(parent_dir, "build")
 _vertical_slider = components.declare_component("vertical_slider", path=build_dir)
 
 def vertical_slider(value, step, min=min, max=max, key=None):
-    slider_value = _vertical_slider(value=value,step=step, min=min, max=max, key=key, default=value)
+    slider_value = _vertical_slider(value = value,step = step, min = min, max = max, key = key, default = value)
     return slider_value
 
 # ----------------------------------------------------------------------------
@@ -77,7 +78,7 @@ def sampled_signal(signal, time):
 
 # -----------------------------------------------------------------------------
 def plot_altair(firstDataFrame, secondDataframe, cutoff):
-
+    plot_width = 1000
     end = firstDataFrame["time"].iloc[-1] + 0.05
 
     zoom = alt.selection_interval(
@@ -104,7 +105,7 @@ def plot_altair(firstDataFrame, secondDataframe, cutoff):
             color = alt.condition(alt.datum["time"] < selector["cutoff"],
                     alt.value("#ffffff"), alt.value("#595959"))
         ).properties(
-            width=1300,
+            width=plot_width,
             height=200
         ).add_selection(
             selector,
@@ -119,7 +120,7 @@ def plot_altair(firstDataFrame, secondDataframe, cutoff):
             color = alt.condition(alt.datum["time"] < selector["cutoff"],
                     alt.value("#ffffff"), alt.value("#595959"), legend=alt.Legend(title=" "))
         ).properties(
-            width=1300,
+            width=plot_width,
             height=200
         ).add_selection(
             selector,
@@ -147,9 +148,9 @@ def plot_altair(firstDataFrame, secondDataframe, cutoff):
     return figure
 
 # ---------------------------------------------------------------------------------------------------
-def start_Plotting (time, line_plot, step,df, df1):
-    for st.session_state.i in np.arange(st.session_state.i, math.ceil(time[-1]), step): # asyncronous timing
-        lines = plot_altair(df, df1, st.session_state.i)
+def start_Plotting (time, line_plot, step, Audio_dataFrame, edited_Audio_dataFrame):
+    for st.session_state.i in np.arange(st.session_state.i, math.ceil(time[-1]), step):
+        lines = plot_altair(Audio_dataFrame, edited_Audio_dataFrame, st.session_state.i)
         line_plot = line_plot.altair_chart(lines)
 
 def fourier_transform(signal,sr):
@@ -160,17 +161,76 @@ def fourier_transform(signal,sr):
     return mag,phase,freq 
 
 def invers (new_mag,phase):
-    y2=np.multiply(new_mag,np.exp(1j*phase))
-    inv_fourier_signal = np.real(scipy.fft.irfft(y2))
+    signal=np.multiply(new_mag,np.exp(1j*phase))
+    inv_fourier_signal = np.real(scipy.fft.irfft(signal))
     return inv_fourier_signal
 
 # convert the signals after sampling to data frame
-def plot_init(t_, x_, y_):
-    df = pd.DataFrame({'time' : t_, 'signal' : list(x_)}, columns = ['time', 'signal'])
-    df1 = pd.DataFrame({'time' : t_, 'signal' : list(y_)}, columns = ['time', 'signal'])
-    lines = plot_altair(df, df1, st.session_state.i)
+def plot_init(t_sampled, first_signal_sampled, second_signal_sampled):
+    Audio_dataFrame = pd.DataFrame({'time' : t_sampled, 'signal' : list(first_signal_sampled)}, columns = ['time', 'signal'])
+    edited_Audio_dataFrame = pd.DataFrame({'time' : t_sampled, 'signal' : list(second_signal_sampled)}, columns = ['time', 'signal'])
+    lines = plot_altair(Audio_dataFrame, edited_Audio_dataFrame, st.session_state.i)
     line_plot = st.altair_chart(lines)
-    return line_plot, df, df1
+    return line_plot, Audio_dataFrame, edited_Audio_dataFrame
+
+
+def drop(first_index, last_index, values_list, freq, new_mag):
+    max_freq = max(freq)
+    # st.write(max_freq)
+    Ranges = {
+        '0': [[0 , max_freq/10]],
+        '1': [[max_freq/10 , 2*(max_freq/10)]],
+        '2': [[2*(max_freq/10) , 3*(max_freq/10)]],
+        '3': [[3*(max_freq/10) , 4*(max_freq/10)]],
+        '4': [[4*(max_freq/10) , 5*(max_freq/10)]],
+        '5': [[5*(max_freq/10) , 6*(max_freq/10)]],
+        '6': [[6*(max_freq/10) , 7*(max_freq/10)]],
+        '7': [[7*(max_freq/10) , 8*(max_freq/10)]],
+        '8': [[8*(max_freq/10) , 9*(max_freq/10)]],
+        '9': [[9*(max_freq/10) , max_freq]],
+
+        '10': [[9*(max_freq/10) , max_freq]],
+        '11': [[9*(max_freq/10) , max_freq]],
+        '12': [[9*(max_freq/10) , max_freq]],
+        '13': [[9*(max_freq/10) , max_freq]],
+
+        '14': [[9*(max_freq/10) , max_freq]],
+        '15': [[9*(max_freq/10) , max_freq]],
+        '16': [[9*(max_freq/10) , max_freq]]
+    }
+
+    # dictionary = dict()
+    # for key, val in Ranges.items():
+    #     if int(key) >= first_index and int (last_index) <= last_index:
+    #         dictionary[key] = val
+
+    # st.write(Ranges[0])
+
+    for (key, value) in enumerate(Ranges.items()):
+        # st.write(first_index)
+        # st.write(last_index)
+        # st.write(slider)
+        
+        slider_ranges = value[1]
+        # st.write (slider_ranges)
+        # st.write(values_list) 
+        if (key < len(values_list)):
+            # st.write(key)
+            for drop in slider_ranges:
+                # st.write(drop)
+                index=np.where((freq>drop[0])&(freq<drop[1]))
+                triangle_window=10**(values_list[key]*scipy.signal.windows.triang(len(index)))
+                # hanning_window=10**(values_list[slider]*np.hanning(len(index)))
+                # st.write(hanning_window)
+                # for k ,itr in zip(index,triangle_window):
+                #     st.write(k, itr)
+                for k ,itr in zip(index,triangle_window):
+                    # st.write(k)
+                    new_mag[k]=new_mag[k]*itr 
+                    # st.write(itr)
+                    # st.write(k)
+        else:
+            break            
 
 
 if 'i' not in st.session_state:
@@ -179,10 +239,36 @@ if 'i' not in st.session_state:
 if 'audio' not in st.session_state:
     st.session_state.audio = 0
 
+if 't_sampled' not in st.session_state:
+    st.session_state.t_sampled = np.zeros(10)
+
+if 't' not in st.session_state:
+    st.session_state.t = np.zeros(10)
+
+if 'signal_sampled' not in st.session_state:
+    st.session_state.signal_sampled = np.zeros(10)
+
+if 'freq' not in st.session_state:
+    st.session_state.freq = np.zeros(10)
+
+if 'mag' not in st.session_state:
+    st.session_state.mag = np.zeros(10)
+
+if 'phase' not in st.session_state:
+    st.session_state.phase = np.zeros(10)
+
+if 'audio_dataFrame' not in st.session_state:
+    st.session_state.audio_dataFrame = pd.DataFrame({'time' : st.session_state.t_sampled, 'signal' : list(st.session_state.signal_sampled)}, columns = ['time', 'signal'])
+
+if 'edited_audio_dataFrame' not in st.session_state:
+    st.session_state.edited_audio_dataFrame = pd.DataFrame({'time' : st.session_state.t_sampled, 'signal' : list(st.session_state.signal_sampled)}, columns = ['time', 'signal'])
+
 # ploting section----------------------------------------------------------------------------------------------
 
+place_holder = st.empty()
 
 col1, col2 = st.columns([1,3])
+place_holder = col2
 
 
 with col1:
@@ -190,6 +276,9 @@ with col1:
     render_svg("assests\logo.svg")
     st.header("Equalizer")
     file = st.file_uploader(label="Upload File", key="uploaded_file",type=["wav"])
+    Ncol1, Ncol2 = st.columns([1, 1])
+    start_btn = Ncol1.button('Start')
+    pause_btn = Ncol2.button('Pause')
     browseButton_style = f"""
     <style>
         .css-1plt86z .css-186ux35{{
@@ -223,54 +312,46 @@ with col1:
 
 
 with col2:
+    # if file is None:
+    #     lines = plot_altair(st.session_state.audio_dataFrame, st.session_state.edited_audio_dataFrame, st.session_state.i)
+    #     line_plot = st.altair_chart(lines)
 
     if file is not None:
+        place_holder.empty()
+        signal, sample_rate =librosa.load(file)
+        st.session_state.t=np.array(range(0,len(signal)))/(sample_rate)
 
-        signal, sr =librosa.load(file)
-        t=np.array(range(0,len(signal)))/(sr)
+        st.session_state.mag, st.session_state.phase, st.session_state.freq = fourier_transform(signal,sample_rate)
 
-        fourier_transform(signal,sr)
-
+        # lines = plot_altair(st.session_state.audio_dataFrame, st.session_state.edited_audio_dataFrame, st.session_state.i)
+        # line_plot = st.altair_chart(lines)
+        
         pygame.mixer.init()
         pygame.mixer.music.load(file.name)
         
-        x_, t_ = sampled_signal(signal, t)
+        st.session_state.signal_sampled, st.session_state.t_sampled = sampled_signal(signal, st.session_state.t)
+
+        line_plot, Audio_dataFrame, edited_Audio_dataFrame = plot_init(st.session_state.t_sampled, st.session_state.signal_sampled, st.session_state.signal_sampled)
+
         f, ax = init_plot()
-        add_to_plot(ax,signal,sr)
-        df = pd.DataFrame({'time' : t_, 'signal' : list(x_)}, columns = ['time', 'signal'])
+        add_to_plot(ax,signal,sample_rate)
 
-        lines = plot_altair(df, st.session_state.i)
-        line_plot = st.altair_chart(lines)
+        st.session_state.audio_dataFrame= pd.DataFrame({'time' : st.session_state.t_sampled, 'signal' : list(st.session_state.signal_sampled)}, columns = ['time', 'signal'])
 
 
-        start_btn = st.button("Start" )
-        pause_btn = st.button("Pause")
-        resume_btn = st.button("resume")    
-        
-        if start_btn:
 
-            st.session_state.i = 0
-            
-            
-            start_Plotting(t_, line_plot, 0.117)
+
+        # start_btn = st.button("Start", key = start_btn)
+        # pause_btn = st.button("Pause", key = pause_btn)   
         
 
-        if pause_btn:
-            pygame.mixer.music.pause()
-        
-        if resume_btn:
-        
-            pygame.mixer.music.unpause()
-            start_Plotting(t_, line_plot, 0.117)
 
-        with st.expander("Spectogram"): 
 
-                show_plot(f)
+        # with st.expander("Spectogram"): 
+        #         show_plot(f)
 
 with st.container():
     col1, gap, col2,gap = st.columns([0.07,0.03,0.07,1])
-    start_btn = col1.button('Start')
-    pause_btn = col2.button('Pause')
 
 
 uniform_tab, vowels_tab, Instruments_tab, Voice_Changer_tab = st.tabs(["Uniform", "Vowels", "Instruments","Voice Changer"])
@@ -279,38 +360,72 @@ with uniform_tab:
     
     first_columns=st.columns(10)
     first_counter=0
+    first_index = 0
+    last_index = 9
     first_list_of_sliders_values = []
     while first_counter < 10:
         with first_columns[first_counter]:
-            first_slider = vertical_slider(5,1,0,5,first_counter)
+            first_slider = vertical_slider(0,1,-10,5,first_counter)
         first_counter +=1
         first_list_of_sliders_values.append(first_slider) 
     first_index=0
     last_index=9
+    drop(first_index, last_index, first_list_of_sliders_values, st.session_state.freq, st.session_state.mag)
 
 with vowels_tab:
     second_columns=st.columns(4)
     second_counter=0
+    first_index = 10
+    last_index = 13
     second_list_of_sliders_values = []
     while second_counter < 4:
         with second_columns[second_counter]:
             second_sliders_key=second_counter+10
-            second_slider = vertical_slider(2,1,0,5,second_sliders_key)
+            second_slider = vertical_slider(0,1,-10,5,second_sliders_key)
         second_counter +=1
         second_list_of_sliders_values.append(second_slider)
 
 with Instruments_tab:
     third_columns=st.columns(3)
     third_counter=0
+    first_index = 14
+    last_index = 16
     third_list_of_sliders_values = []
     while third_counter < 3:
         with third_columns[third_counter]:
             third_sliders_key = third_counter+14
-            third_slider = vertical_slider(2,1,0,5,third_sliders_key)
+            third_slider = vertical_slider(0,1,-10,5,third_sliders_key)
         third_counter +=1
         third_list_of_sliders_values.append(third_slider)
 
 
 with Voice_Changer_tab:
-    change_to_male_voice = st.checkbox('Male Voice')
-    change_to_female_voice = st.checkbox('Female Voice')
+    st.header(" ")
+    col1, col2 = st.columns([1,1])
+    with col1:
+        change_to_male_voice = st.button('Male Voice')
+    with col2:
+        change_to_female_voice = st.button('Female Voice')
+
+if 'state_flag' not in st.session_state:
+    st.session_state.state_flag = 0     
+
+if start_btn:
+    with col2:
+        inv_fourier_signal =  invers(st.session_state.mag, st.session_state.phase)
+        sampled_inv, st.session_state.t_sampled = sampled_signal(inv_fourier_signal, st.session_state.t)
+        st.session_state.edited_audio_dataFrame= pd.DataFrame({'time' : st.session_state.t_sampled, 'signal' : list(sampled_inv)}, columns = ['time', 'signal'])
+        st.session_state.i = 0
+        st.session_state.state_flag = 0
+        start_Plotting(st.session_state.t_sampled, line_plot, 0.117, st.session_state.audio_dataFrame, st.session_state.edited_audio_dataFrame)
+
+
+if pause_btn:
+    if st.session_state.state_flag == 0:
+        pygame.mixer.music.pause()
+        st.session_state.state_flag = 1
+    else:
+        pygame.mixer.music.unpause()
+        st.session_state.state_flag = 0
+        with col2:
+            start_Plotting(st.session_state.t_sampled, line_plot, 0.117, st.session_state.audio_dataFrame, st.session_state.edited_audio_dataFrame)

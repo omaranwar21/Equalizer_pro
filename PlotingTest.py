@@ -162,21 +162,70 @@ mag=np.abs(y_sig)
 phase=np.angle(y_sig)
 freq= rfftfreq(len(x),1/sr)
 
-ranges1=[[0,5000]]
+# ranges1=[[0,5000]]
 
 new_mag=mag.copy()  
 
-def drop(slider_ranges,factor_slider, freq, new_mag):
-    for range in slider_ranges:
-        index=np.where((freq>range[0])&(freq<range[1]))
-        
-        
-        # triangle_window=10**(factor_slider*scipy.signal.windows.triang(len(index)))
-        triangle_window=10**(factor_slider*np.hanning(len(index)))
-        # triangle_window=(factor_slider*np.hanning(len(index)))
+def drop(first_index, last_index, values_list, freq, new_mag):
+    max_freq = max(freq)
 
-        for i ,itr in zip(index,triangle_window):
-            new_mag[i]=new_mag[i]*itr
+    # Ranges = [
+    #     [[0 , max_freq/10]],
+    #     [[max_freq/10 , 2*(max_freq/10)]],
+    #     [[2*(max_freq/10) , 3*(max_freq/10)]],
+    #     [[3*(max_freq/10) , 4*(max_freq/10)]],
+    #     [[4*(max_freq/10) , 5*(max_freq/10)]],
+    #     [[5*(max_freq/10) , 6*(max_freq/10)]],
+    #     [[6*(max_freq/10) , 7*(max_freq/10)]],
+    #     [[7*(max_freq/10) , 8*(max_freq/10)]],
+    #     [[8*(max_freq/10) , 9*(max_freq/10)]],
+    #     [[9*(max_freq/10) , max_freq]],
+
+    #     [[9*(max_freq/10) , max_freq]],
+    #     [[9*(max_freq/10) , max_freq]],
+    #     [[9*(max_freq/10) , max_freq]],
+    #     [[9*(max_freq/10) , max_freq]],
+
+    #     [[9*(max_freq/10) , max_freq]],
+    #     [[9*(max_freq/10) , max_freq]],
+    #     [[9*(max_freq/10) , max_freq]]
+    # ]
+    Ranges = [
+        [0 , max_freq/10],
+        [max_freq/10 , 2*(max_freq/10)],
+        [2*(max_freq/10) , 3*(max_freq/10)],
+        [3*(max_freq/10) , 4*(max_freq/10)],
+        [4*(max_freq/10) , 5*(max_freq/10)],
+        [5*(max_freq/10) , 6*(max_freq/10)],
+        [6*(max_freq/10) , 7*(max_freq/10)],
+        [7*(max_freq/10) , 8*(max_freq/10)],
+        [8*(max_freq/10) , 9*(max_freq/10)],
+        [9*(max_freq/10) , max_freq],
+
+        [9*(max_freq/10) , max_freq],
+        [9*(max_freq/10) , max_freq],
+        [9*(max_freq/10) , max_freq],
+        [9*(max_freq/10) , max_freq],
+
+        [9*(max_freq/10) , max_freq],
+        [9*(max_freq/10) , max_freq],
+        [9*(max_freq/10) , max_freq]
+    ]
+    # st.write(max_freq/10)
+    st.write(Ranges[0])
+    for slider in range(first_index, last_index+1):
+        slider_ranges = Ranges[slider]
+
+        for drop in slider_ranges:
+            index=np.where((freq>drop[0])&(freq<drop[1]))
+            
+            
+            # triangle_window=10**(factor_slider*scipy.signal.windows.triang(len(index)))
+            triangle_window=10**(values_list[slider]*np.hanning(len(index)))
+            # triangle_window=(factor_slider*np.hanning(len(index)))
+
+            for i ,itr in zip(index,triangle_window):
+                new_mag[i]=new_mag[i]*itr
         # for i in index:
         #     for (index,iter) in zip(index, triangle_window):
         #         new_mag[i]=new_mag[i]*triangle_window[iter]
@@ -184,7 +233,7 @@ def drop(slider_ranges,factor_slider, freq, new_mag):
 
             # print(i)
 
-drop(ranges1, st.session_state.slider_value, freq, new_mag)
+# drop(ranges1, st.session_state.slider_value, freq, new_mag)
 
 def invers (new_mag,phase):
     y2=np.multiply(new_mag,np.exp(1j*phase))
