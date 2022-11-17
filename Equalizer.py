@@ -288,40 +288,60 @@ with col2:
 
 uniform_tab, vowels_tab, Instruments_tab, Voice_Changer_tab = st.tabs(["Uniform", "Vowels", "Instruments","Voice Changer"])
 
+<<<<<<< Updated upstream
 with uniform_tab:
 
+=======
+with tab1:
+   
+    first_dictionary_list=[]
+    normal_list=[]
+>>>>>>> Stashed changes
     first_columns=st.columns(10)
     first_counter=0
-    first_list_of_sliders_values = []
     while first_counter < 10:
         with first_columns[first_counter]:
             first_slider = vertical_slider(5,1,0,5,first_counter)
-        first_counter +=1
-        first_list_of_sliders_values.append(first_slider) 
-    
+            normal_list.append(first_counter,first_slider)
+        first_dictionary_list.append(normal_list)
+        normal_list.remove()
+        first_counter +=1    
 
+<<<<<<< Updated upstream
 with vowels_tab:
+=======
+with tab2:
+    second_dictionary_list =[]
+    vowels_list=[]
+>>>>>>> Stashed changes
     second_columns=st.columns(4)
     second_counter=0
-    second_list_of_sliders_values = []
     while second_counter < 4:
         with second_columns[second_counter]:
             second_sliders_key=second_counter+10
             second_slider = vertical_slider(2,1,0,5,second_sliders_key)
+            vowels_list.append(second_sliders_key,second_slider)
+        second_dictionary_list.append(vowels_list)
+        vowels_list.remove()     
         second_counter +=1
-        second_list_of_sliders_values.append(second_slider)
 
-
+<<<<<<< Updated upstream
 with Instruments_tab:
+=======
+with tab3:
+    third_dictionary_list=[]
+    instrument_list=[]
+>>>>>>> Stashed changes
     third_columns=st.columns(3)
     third_counter=0
-    third_list_of_sliders_values = []
     while third_counter < 3:
         with third_columns[third_counter]:
             third_sliders_key = third_counter+14
             third_slider = vertical_slider(2,1,0,5,third_sliders_key)
+            instrument_list.append(third_sliders_key,third_slider)
+        third_dictionary_list.append(instrument_list)  
+        instrument_list.remove()   
         third_counter +=1
-        third_list_of_sliders_values.append(third_slider)
 
 
 with Voice_Changer_tab:
