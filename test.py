@@ -57,3 +57,14 @@
 
 #---------------------------------------------------------------------------------------
 
+from os import path
+from pydub import AudioSegment
+import ffmpeg
+
+# files                                                                         
+src = "half.wav"
+dst = "testAudio.mp3"
+
+# convert wav to mp3                                                            
+sound = AudioSegment.from_wav(src)
+sound.export(dst, format="mp3")
